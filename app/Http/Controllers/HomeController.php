@@ -3,19 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use App\Models\Article;
 class HomeController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     /**
      * Show the application dashboard.
      *
@@ -23,6 +13,14 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $articles = Article::with([
+                'user' => function($q){
+                    $q->select('id', 'name');
+                },
+            ])
+            ->orderBy('created_at', 'DESC')
+            ->select('id', 'title', 'text', 'created_at', 'user_id')
+            ->get();
+        return view('home', compact('articles'));
     }
 }
